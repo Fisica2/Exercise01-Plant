@@ -35,7 +35,8 @@ bool Game::Init()
 
 	//Init variables
 	//size: 104x82
-	Player.Init(20, WINDOW_HEIGHT >> 1, 104, 82, 5);
+	Player.Init(20, WINDOW_HEIGHT >> 1, 100, 96, 5);
+	Plant.Init(200, WINDOW_HEIGHT >> 1, 104, 82, 5);
 	idx_shot = 0;
 	int w;
 	SDL_QueryTexture(img_background, NULL, NULL, &w, NULL);
@@ -56,12 +57,22 @@ bool Game::LoadImages()
 		SDL_Log("CreateTextureFromSurface failed: %s\n", SDL_GetError());
 		return false;
 	}
-	img_player = SDL_CreateTextureFromSurface(Renderer, IMG_Load("spaceship.png"));
+	img_player = SDL_CreateTextureFromSurface(Renderer, IMG_Load("player.png"));
 	if (img_player == NULL) {
 		SDL_Log("CreateTextureFromSurface failed: %s\n", SDL_GetError());
 		return false;
 	}
 	img_shot = SDL_CreateTextureFromSurface(Renderer, IMG_Load("shot.png"));
+	if (img_shot == NULL) {
+		SDL_Log("CreateTextureFromSurface failed: %s\n", SDL_GetError());
+		return false;
+	}
+	img_plant1 = SDL_CreateTextureFromSurface(Renderer, IMG_Load("plant1.png"));
+	if (img_shot == NULL) {
+		SDL_Log("CreateTextureFromSurface failed: %s\n", SDL_GetError());
+		return false;
+	}
+	img_plant2 = SDL_CreateTextureFromSurface(Renderer, IMG_Load("plant2.png"));
 	if (img_shot == NULL) {
 		SDL_Log("CreateTextureFromSurface failed: %s\n", SDL_GetError());
 		return false;
@@ -107,46 +118,21 @@ bool Game::Update()
 	//Process Input
 	int fx = 0, fy = 0;
 	if (keys[SDL_SCANCODE_ESCAPE] == KEY_DOWN)	return true;
-	if (keys[SDL_SCANCODE_F1] == KEY_DOWN)		god_mode = !god_mode;
-	if (keys[SDL_SCANCODE_UP] == KEY_REPEAT)	fy = -1;
-	if (keys[SDL_SCANCODE_DOWN] == KEY_REPEAT)	fy = 1;
-	if (keys[SDL_SCANCODE_LEFT] == KEY_REPEAT)	fx = -1;
-	if (keys[SDL_SCANCODE_RIGHT] == KEY_REPEAT)	fx = 1;
-	if (keys[SDL_SCANCODE_SPACE] == KEY_DOWN)
-	{
-		int x, y, w, h;
-		Player.GetRect(&x, &y, &w, &h);
-		//size: 56x20
-		//offset from player: dx, dy = [(29, 3), (29, 59)]
-		Shots[idx_shot].Init(x + 29, y + 3, 56, 20, 10);
-		idx_shot++;
-		idx_shot %= MAX_SHOTS;
-		Shots[idx_shot].Init(x + 29, y + 59, 56, 20, 10);
-		idx_shot++;
-		idx_shot %= MAX_SHOTS;
-	}
+	if (keys[SDL_SCANCODE_A] == KEY_REPEAT)	fx = -1;
+	if (keys[SDL_SCANCODE_D] == KEY_REPEAT)	fx = 1;
+
 
 	//Logic
-	//Scene scroll
-	Scene.Move(-1, 0);
-	if (Scene.GetX() <= -Scene.GetWidth())	Scene.SetX(0);
+
 	//Player update
 	Player.Move(fx, fy);
-	//Shots update
-	for (int i = 0; i < MAX_SHOTS; ++i)
-	{
-		if (Shots[i].IsAlive())
-		{
-			Shots[i].Move(1, 0);
-			if (Shots[i].GetX() > WINDOW_WIDTH)	Shots[i].ShutDown();
-		}
-	}
 		
 	return false;
 }
 void Game::Draw()
 {
 	SDL_Rect rc;
+	SDL_Rect ra;
 
 	//Set the color used for drawing operations
 	SDL_SetRenderDrawColor(Renderer, 0, 0, 0, 255);
@@ -154,30 +140,15 @@ void Game::Draw()
 	SDL_RenderClear(Renderer);
 
 	//God mode uses red wireframe rectangles for physical objects
-	if (god_mode) SDL_SetRenderDrawColor(Renderer, 192, 0, 0, 255);
 
-	//Draw scene
-	Scene.GetRect(&rc.x, &rc.y, &rc.w, &rc.h);
-	SDL_RenderCopy(Renderer, img_background, NULL, &rc);
-	rc.x += rc.w;
-	SDL_RenderCopy(Renderer, img_background, NULL, &rc);
-	
-	//Draw player
 	Player.GetRect(&rc.x, &rc.y, &rc.w, &rc.h);
-	SDL_RenderCopy(Renderer, img_player, NULL, &rc);
-	if (god_mode) SDL_RenderDrawRect(Renderer, &rc);
-	
-	//Draw shots
-	for (int i = 0; i < MAX_SHOTS; ++i)
-	{
-		if (Shots[i].IsAlive())
-		{
-			Shots[i].GetRect(&rc.x, &rc.y, &rc.w, &rc.h);
-			SDL_RenderCopy(Renderer, img_shot, NULL, &rc);
-			if (god_mode) SDL_RenderDrawRect(Renderer, &rc);
-		}
-	}
+	Plant.GetRect(&ra.x, &ra.y, &ra.w, &ra.h);
+	if (rc.x <= 200) SDL_RenderCopy(Renderer, img_plant2, NULL, &ra);
+	else  SDL_RenderCopy(Renderer, img_plant1, NULL, &ra);
 
+	//Draw player
+	SDL_RenderCopy(Renderer, img_player, NULL, &rc);
+	
 	//Update screen
 	SDL_RenderPresent(Renderer);
 
