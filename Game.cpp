@@ -143,7 +143,7 @@ void Game::Draw()
 
 	Player.GetRect(&rc.x, &rc.y, &rc.w, &rc.h);
 	Plant.GetRect(&ra.x, &ra.y, &ra.w, &ra.h);
-	if (rc.x <= 200) SDL_RenderCopy(Renderer, img_plant2, NULL, &ra);
+	if (rc.x <= 150 || rc.x>=280) SDL_RenderCopy(Renderer, img_plant2, NULL, &ra);
 	else  SDL_RenderCopy(Renderer, img_plant1, NULL, &ra);
 
 	//Draw player
