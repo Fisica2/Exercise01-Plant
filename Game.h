@@ -38,6 +38,9 @@ private:
 
 	bool god_mode;
 
+	int plantInitialPos = 150;
+	int plantFinalPos = 280;
+
 	enum KEY_STATE { KEY_IDLE, KEY_DOWN, KEY_REPEAT, KEY_UP	};
 	KEY_STATE keys[MAX_KEYS]; 
 };

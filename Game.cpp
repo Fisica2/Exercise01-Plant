@@ -84,7 +84,6 @@ void Game::Release()
 	//Release images
 	SDL_DestroyTexture(img_background);
 	SDL_DestroyTexture(img_player);
-	SDL_DestroyTexture(img_shot);
 	IMG_Quit();
 	
 	//Clean up all SDL initialized subsystems
@@ -139,11 +138,9 @@ void Game::Draw()
 	//Clear rendering target
 	SDL_RenderClear(Renderer);
 
-	//God mode uses red wireframe rectangles for physical objects
-
 	Player.GetRect(&rc.x, &rc.y, &rc.w, &rc.h);
 	Plant.GetRect(&ra.x, &ra.y, &ra.w, &ra.h);
-	if (rc.x <= 150 || rc.x>=280) SDL_RenderCopy(Renderer, img_plant2, NULL, &ra);
+	if (rc.x <= plantInitialPos || rc.x>= plantFinalPos) SDL_RenderCopy(Renderer, img_plant2, NULL, &ra);
 	else  SDL_RenderCopy(Renderer, img_plant1, NULL, &ra);
 
 	//Draw player
